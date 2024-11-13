@@ -1,3 +1,5 @@
+from threading import Thread
+
 import Helper
 from pytubefix import Search, YouTube
 import telebot
@@ -71,7 +73,6 @@ def add_song(message):
     db.allow_user(message.chat.id, True)
     bot.delete_message(message.chat.id, db.get_saved_message(message.chat.id, "🔄Loading"))
 
-
 def new_user(message):
     bot.send_message(message.chat.id, "🎵 Welcome to our music bot! 🎶\n\n"
                                       "You can use the following commands:\n\n" +
@@ -114,15 +115,13 @@ def send_youtube_audio(message, yt_obj, link):
     user = message.chat.id
     db.save_message(bot.send_message(user, "➡️Sending", reply_markup=no_keyboard))
     song = search(yt_obj.title)
-    audio = yt_obj.streams.filter().first()
-    newname = song['tracks']['items'][0]['name'] + '.mp4'
+    audio = yt_obj.streams.get_audio_only()
+    newname = song['tracks']['items'][0]['name'] + '.mp3'
     img_name = song['tracks']['items'][0]['name'] + '.jpg'
     audio.download(filename=newname)
     if download_image(sp.album(song['tracks']['items'][0]['album']['id'])['images'][0]['url'], img_name):
         with open(newname, 'rb') as audio_file:
             to_sent = ""
-            if message.chat.id == 5717723469:
-                to_sent += formatting.hcode("❤️‍🔥Recommended song")
             to_sent += hlink('\nspotify.link', song['tracks']['items'][0]['external_urls']['spotify']) + ' / ' + hlink(
                 'youtube.link', youtube_url)
             bot.send_audio(user, audio_file,
@@ -194,8 +193,7 @@ def make_music_list(message, show):
 
 
 def search(name):
-    result = sp.search(q=name, limit=1)
-    return result
+    return sp.search(q=name, limit=1)
 
 
 def download_image(url, filename):
