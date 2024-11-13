@@ -13,6 +13,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 from aiogram.utils.markdown import hlink
 import requests
 import datetime
+import subprocess
 
 db = DataBase.DataBase()
 
@@ -101,7 +102,7 @@ def handle_button_click(call):
     else:
         if db.get_allow(call.message.chat.id):
             db.allow_user(call.message.chat.id, False)
-            yt_obj = YouTube(f"https://www.youtube.com/watch?v={call.data}", token_file="GoogleToken", use_po_token=True)
+            yt_obj = YouTube(f"https://www.youtube.com/watch?v={call.data}")
             send_youtube_audio(call.message,
                                yt_obj,
                                f"https://www.youtube.com/watch?v={call.data}")
@@ -205,6 +206,9 @@ def download_image(url, filename):
         return 1
     else:
         return 0
+
+
+result = subprocess.run(["node", "node_modules/po_receiver.js"], capture_output=True, text=True)
 
 
 while True:
